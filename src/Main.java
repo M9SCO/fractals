@@ -1,30 +1,64 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 public class Main extends JComponent {
     public static final int WIDTH = 800;
     public static final int HEIGHT = 600;
-    private static final int basement = 50;
-    private final BufferedImage buffer;
+    public Color color;
+    public  JColorChooser chooser;
+    BufferedImage buffer;
     public Main() {
-
-
-
-        buffer = new BufferedImage(WIDTH, HEIGHT - basement, BufferedImage.TYPE_INT_RGB);
-
-        Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT-basement, 255, buffer, 0f);
+        String[] items = {
+                "Mandelbrot Set",
+                "Mandelbrot Set v2",
+        };
+        buffer = new BufferedImage(WIDTH, HEIGHT , BufferedImage.TYPE_INT_RGB);
         //Blue - 0.5, Pink - 0.9f, Red -0.0f, Yellow - 0.1f, Green - 0.3f
-        mandelbrot.render();
-
         JFrame frame = new JFrame("Fractals");
+        canvas.setPreferredSize(new Dimension(WIDTH,HEIGHT));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
-        frame.getContentPane().add(this);
+        JPanel panel = new JPanel();
+        panel.setSize(800,50);
+        JComboBox comboBox = new JComboBox(items);
+        JButton colorButton = new JButton("Choose color");
+        chooser = new JColorChooser();
+        JTextField field = new JTextField(10);
+        JLabel label = new JLabel("Iterations:");
+        JButton button = new JButton("OK");
+        colorButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                color = chooser.showDialog(chooser, "Choose color", chooser.getColor());
+            }
+        });
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(comboBox.getSelectedItem().equals(items[0])) {
+                    Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT, 255, buffer, 0f);
+                    mandelbrot.render();
+                    canvas.repaint();
+                }
+                else {
+                    Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT, Integer.parseInt(field.getText()), buffer, color.getRGB()/255f);
+                    mandelbrot.render();
+                    canvas.repaint();
+                }
+            }
+        });
+        panel.add(comboBox);
+        panel.add(label);
+        panel.add(field);
+        panel.add(colorButton);
+        panel.add(button);
+        frame.getContentPane().add(canvas);
+        frame.getContentPane().add(panel,BorderLayout.SOUTH);
         frame.pack();
         frame.setVisible(true);
-
-
     }
 
     public static void main(String[] args) {
@@ -35,11 +69,14 @@ public class Main extends JComponent {
     public void addNotify() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
     }
-
-
-    @Override
-    public void paint(Graphics g) {
-        g.drawImage(buffer, 0, 0, null);
-
-    }
+    private final Canvas canvas = new Canvas() {
+        @Override
+        public void paint(Graphics g) {
+            g.drawImage(buffer, 0, 0, null);
+        }
+        @Override
+        public void update(Graphics g) {
+            paint(g);
+        }
+    };
 }

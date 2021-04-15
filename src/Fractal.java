@@ -15,6 +15,4 @@ public abstract class Fractal {
         SCALE = scale;
         COLOR_CORRECT = color_correct;
     }
-
-
 }
