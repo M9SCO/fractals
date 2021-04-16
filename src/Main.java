@@ -13,7 +13,7 @@ public class Main extends JComponent {
     public Main() {
         String[] items = {
                 "Mandelbrot Set",
-                "Mandelbrot Set v2",
+                "Julia Set",
         };
         buffer = new BufferedImage(WIDTH, HEIGHT , BufferedImage.TYPE_INT_RGB);
         //Blue - 0.5, Pink - 0.9f, Red -0.0f, Yellow - 0.1f, Green - 0.3f
@@ -29,25 +29,57 @@ public class Main extends JComponent {
         JTextField field = new JTextField(10);
         JLabel label = new JLabel("Iterations:");
         JButton button = new JButton("OK");
+        JTextField field1 = new JTextField(10);
+        JTextField field2 = new JTextField(10);
+        JLabel label1 = new JLabel("cReal:");
+        JLabel label2 = new JLabel("cImag");
         colorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 color = chooser.showDialog(chooser, "Choose color", chooser.getColor());
             }
         });
-        JTextField field1 = new JTextField(10);
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(comboBox.getSelectedItem().equals(items[0])) {
-                    Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT, 255, buffer, color);
+                    Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT, Integer.parseInt(field.getText()), buffer, color,0,0);
                     mandelbrot.render();
                     canvas.repaint();
                 }
-                else {
-                    Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT, Integer.parseInt(field.getText()), buffer, color);
-                    mandelbrot.render();
+                else if(comboBox.getSelectedItem().equals(items[1])){
+                    Julia julia = new Julia(WIDTH, HEIGHT, Integer.parseInt(field.getText()), buffer, color,Float.parseFloat(field1.getText()),Float.parseFloat(field2.getText()));
+                    julia.render();
                     canvas.repaint();
+                }
+            }
+        });
+        comboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(comboBox.getSelectedItem().equals(items[0])) {
+                    panel.removeAll();
+                    panel.add(comboBox);
+                    panel.add(label);
+                    panel.add(field);
+                    panel.add(colorButton);
+                    panel.add(button);
+                    frame.getContentPane().add(panel,BorderLayout.SOUTH);
+                    frame.getContentPane().validate();
+                }
+                else if(comboBox.getSelectedItem().equals(items[1])){
+                    panel.removeAll();
+                    panel.add(comboBox);
+                    panel.add(label);
+                    panel.add(field);
+                    panel.add(label1);
+                    panel.add(field1);
+                    panel.add(label2);
+                    panel.add(field2);
+                    panel.add(colorButton);
+                    panel.add(button);
+                    frame.getContentPane().add(panel,BorderLayout.SOUTH);
+                    frame.getContentPane().validate();
                 }
             }
         });
@@ -56,7 +88,6 @@ public class Main extends JComponent {
         panel.add(field);
         panel.add(colorButton);
         panel.add(button);
-        panel.add(field1);
         frame.getContentPane().add(canvas);
         frame.getContentPane().add(panel,BorderLayout.SOUTH);
         frame.pack();

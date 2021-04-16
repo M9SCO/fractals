@@ -1,30 +1,26 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class Mandelbrot extends Fractal {
+public class Julia extends Fractal {
     @Override
     public void render() {
         for (int x = 0; x< WIDTH; x++)
             for (int y = 0; y < HEIGHT; y++) {
-                int color = getColor((x- WIDTH/2f)/SCALE, (y-HEIGHT/2f)/SCALE);
-//                System.out.println(color);color
+                int color = getColor(2.0f*(x-WIDTH/2)/(WIDTH/2), 1.33f*(y-HEIGHT/2)/(HEIGHT/2));
                 BUFFER.setRGB(x, y, color);
             }
 
     }
-
     @Override
     public int getColor(float x, float y) {
-        float cx = x, cy = y;
-        int i = 0;
-
-        for(;i<ITERATIONS; i++){
-            float nx = x*x - y*y + cx;
-            float ny = 2*x*y + cy;
-            x = nx;
-            y = ny;
-
-            if(x*x+y*y>4) break;
+        ComplexNumber constant = new ComplexNumber(cReal,cImag);
+        ComplexNumber newz = new ComplexNumber(x, y);
+        int i=0;
+        for(; i<ITERATIONS; i++) {
+            newz = newz.square();
+            newz.add(constant);
+            if(newz.mod() > 2)
+                break;
         }
         int red = COLOR_CORRECT.getRed();
         int green = COLOR_CORRECT.getGreen();
@@ -37,7 +33,7 @@ public class Mandelbrot extends Fractal {
         return Color.HSBtoRGB(((float)i/ITERATIONS+hue)%1,saturation,brightness);
     }
 
-    Mandelbrot(int w, int h, int i, BufferedImage buffer, Color color_correct,double cr, double ci) {
-        super(w, h, i, buffer, 250, color_correct,0,0);
+    Julia(int w, int h, int i, BufferedImage buffer, Color color_correct,double cr, double ci) {
+        super(w, h, i, buffer, 250, color_correct,cr,ci);
     }
 }
