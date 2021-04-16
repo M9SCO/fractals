@@ -35,16 +35,17 @@ public class Main extends JComponent {
                 color = chooser.showDialog(chooser, "Choose color", chooser.getColor());
             }
         });
+        JTextField field1 = new JTextField(10);
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(comboBox.getSelectedItem().equals(items[0])) {
-                    Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT, 255, buffer, 0f);
+                    Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT, 255, buffer, color);
                     mandelbrot.render();
                     canvas.repaint();
                 }
                 else {
-                    Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT, Integer.parseInt(field.getText()), buffer, color.getRGB()/255f);
+                    Mandelbrot mandelbrot = new Mandelbrot(WIDTH, HEIGHT, Integer.parseInt(field.getText()), buffer, color);
                     mandelbrot.render();
                     canvas.repaint();
                 }
@@ -55,6 +56,7 @@ public class Main extends JComponent {
         panel.add(field);
         panel.add(colorButton);
         panel.add(button);
+        panel.add(field1);
         frame.getContentPane().add(canvas);
         frame.getContentPane().add(panel,BorderLayout.SOUTH);
         frame.pack();

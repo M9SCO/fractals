@@ -26,12 +26,18 @@ public class Mandelbrot extends Fractal {
 
             if(x*x+y*y>4) break;
         }
-
+        int red = COLOR_CORRECT.getRed();
+        int green = COLOR_CORRECT.getGreen();
+        int blue = COLOR_CORRECT.getBlue();
+        float[] hsb = Color.RGBtoHSB(red, green, blue, null);
+        float hue = hsb[0];
+        float saturation = hsb[1];
+        float brightness = hsb[2];
         if(i == ITERATIONS) return 0x00000000;
-        return Color.HSBtoRGB((((float) i/ITERATIONS)+ COLOR_CORRECT)%1, 0.5f, 1);
+        return Color.HSBtoRGB(((float)i/ITERATIONS+hue)%1,saturation,brightness);
     }
 
-    Mandelbrot(int w, int h, int i, BufferedImage buffer, float color_correct) {
+    Mandelbrot(int w, int h, int i, BufferedImage buffer, Color color_correct) {
         super(w, h, i, buffer, 250, color_correct);
     }
 }
