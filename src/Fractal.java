@@ -7,6 +7,9 @@ public abstract class Fractal {
     public static BufferedImage BUFFER;
     public static double cReal;
     public static double cImag;
+    public static double zoom;
+    public static double topLeftX;
+    public static double topLeftY;
 
     Fractal(int w, int h, int i, BufferedImage buffer, int scale, Color color_correct, double cr, double ci) {
         WIDTH = w;
@@ -17,6 +20,7 @@ public abstract class Fractal {
         COLOR_CORRECT = color_correct;
         cReal = cr;
         cImag = ci;
+
     }
 
     public abstract void render();
@@ -56,10 +60,5 @@ public abstract class Fractal {
         float hue = hsb[0];
         float saturation = hsb[1];
         float brightness = hsb[2];
-//        if(i == ITERATIONS) return 0x00000000;
-//        System.out.println(hue);
         return Color.HSBtoRGB(((float) i / ITERATIONS + hue) % 1, saturation, brightness);
-    }
-
-
-}
+    }}
