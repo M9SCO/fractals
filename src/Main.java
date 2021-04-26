@@ -3,7 +3,6 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
@@ -13,7 +12,7 @@ public class Main extends JComponent {
     public static final String[] fractals_strings = {"Mandelbrot Set", "Julia Set"};
     private Canvas canvas;
 
-    public Color color;
+    public Color color = Color.red;
     public JColorChooser chooser;
     BufferedImage buffer;
     JFrame window;
@@ -31,13 +30,20 @@ public class Main extends JComponent {
     ActionListener changedColor;
     ActionListener buttonRenderFractal;
     MouseAdapter mouseListener;
-    private int scale, fractal_selected;
+    public int  fractal_selected;
 
     float cr, ci;
+    double mX,mY;
     int iterations;
-    int mX = 0, mY=0;
+    String fractal_type;
 
+    public static final double DEFAULT_ZOOM       = 250.0;
+    public static final double DEFAULT_TOP_LEFT_X = -2.0;
+    public static final double DEFAULT_TOP_LEFT_Y = +1.5;
 
+    public double zoomFactor = DEFAULT_ZOOM;
+    public double topLeftX   = DEFAULT_TOP_LEFT_X;
+    public double topLeftY   = DEFAULT_TOP_LEFT_Y;
 
     public Main() {
         window = new JFrame("Fractals");
@@ -47,32 +53,33 @@ public class Main extends JComponent {
 
         chooseFractalComboBox = new JComboBox(fractals_strings);
         iterationsField = new JTextField(10);
-        colorButton = new JButton("Choose color");
+        colorButton = new JButton("Change color");
         iterationsLabel = new JLabel("Iterations:");
-        drawButton = new JButton("OK");
+        drawButton = new JButton("Draw");
         field1 = new JTextField(10);
         field2 = new JTextField(10);
         label1 = new JLabel("cReal:");
-        label2 = new JLabel("cImag");
-
-
+        label2 = new JLabel("cImag:");
 
         changedColor = e -> color = JColorChooser.showDialog(chooser, "Choose color", chooser.getColor());
         buttonRenderFractal = e -> {
-            iterations = Integer.parseInt(iterationsField.getText());
-            String fractal_type = (String) chooseFractalComboBox.getSelectedItem();
-            if (Objects.equals(fractal_type, fractals_strings[0])) {
-                scale = 300;
-                fractal_selected = 0;
-            } else if (Objects.equals(fractal_type, fractals_strings[1])) {
-                scale = 2;
-                fractal_selected = 1;
-                cr = Float.parseFloat(field1.getText());
-                ci = Float.parseFloat(field2.getText());
+            try {
+                iterations = Integer.parseInt(iterationsField.getText());
+                fractal_type = (String) chooseFractalComboBox.getSelectedItem();
+                if (Objects.equals(fractal_type, fractals_strings[0])) {
+                    fractal_selected = 0;
+                } else if (Objects.equals(fractal_type, fractals_strings[1])) {
+                    fractal_selected = 1;
+                    cr = Float.parseFloat(field1.getText());
+                    ci = Float.parseFloat(field2.getText());
+                }
+                drawFractal();
+                canvas.repaint();
             }
-            drawFractal();
-            canvas.repaint();
-
+            catch (NumberFormatException ex){
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(window, "Enter iterations, cReal, cImag","Error",JOptionPane.ERROR_MESSAGE);
+            }
         };
         changedFractalType = e -> {
             panel.removeAll();
@@ -92,42 +99,34 @@ public class Main extends JComponent {
         };
 
         mouseListener = new MouseAdapter() {
+            Thread x = new Thread(new loop());
             @Override
             public void mouseClicked(MouseEvent e) {
                 mX = e.getX();
                 mY = e.getY();
+                fractal_type = (String) chooseFractalComboBox.getSelectedItem();
                 switch (e.getButton()){
-                    case MouseEvent.BUTTON1:
-                        scale *= 2;
+                    case MouseEvent.BUTTON1: {
+                        adjustZoom(mX,mY,zoomFactor*1);
+                        if (x.isInterrupted()){
+                            x.run();
+                        }
+                        x.start();
+                    }
                         break;
                     case MouseEvent.BUTTON3:
-                        scale /= 2;
+                        x.interrupt();
+                        x = new Thread(new loop());
                         break;
-
                 }
-                drawFractal();
-                canvas.repaint();
-
             }
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) { }
-
-            @Override
-            public void mouseEntered(MouseEvent e) { }
-
-            @Override
-            public void mouseExited(MouseEvent e) { }
         };
 
 
         canvas = new Canvas() {
             @Override
             public void paint(Graphics g) {
-                g.drawImage(buffer, 0, 0, null);
+                g.drawImage(buffer, 0, 0, this);
             }
 
             @Override
@@ -135,7 +134,6 @@ public class Main extends JComponent {
                 paint(g);
             }
         };
-
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
         panel.setSize(WIDTH, 50);
@@ -157,14 +155,28 @@ public class Main extends JComponent {
 
 
     }
-
-
+    public class loop implements Runnable{
+        public void run(){
+            while(!Thread.interrupted()) {
+                adjustZoom( WIDTH/2,HEIGHT/2,zoomFactor*2 );
+            }
+        }
+    }
+    public void adjustZoom(double newX,double newY,double newZoomFactor ) {
+        topLeftX += newX / zoomFactor;
+        topLeftY -= newY / zoomFactor;
+        zoomFactor = newZoomFactor;
+        topLeftX -= ( WIDTH/2) / zoomFactor;
+        topLeftY += (HEIGHT/2) / zoomFactor;
+        drawFractal();
+        canvas.repaint();
+    }
 
 
     private void drawFractal() {
         switch (fractal_selected) {
-            case 0 -> new Mandelbrot(WIDTH, HEIGHT, iterations, buffer, color, scale).render();
-            case 1 -> new Julia(WIDTH, HEIGHT, iterations, buffer, color, cr, ci, scale).render();
+            case 0 -> new RenderFractal(WIDTH,HEIGHT,iterations, buffer, color,0,0,zoomFactor,topLeftX,topLeftY).render();
+            case 1 -> new RenderFractal(WIDTH,HEIGHT,iterations, buffer, color,cr,ci,zoomFactor,topLeftX,topLeftY).render();
             default -> throw new IllegalStateException("Unexpected value: " + fractal_selected);
         }
     }

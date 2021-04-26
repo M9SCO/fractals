@@ -2,30 +2,29 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public abstract class Fractal {
-    public static int HEIGHT, WIDTH, ITERATIONS, SCALE;
+    public static int HEIGHT, WIDTH, ITERATIONS;
     public static Color COLOR_CORRECT;
     public static BufferedImage BUFFER;
     public static double cReal;
     public static double cImag;
-    public static double zoom;
+    public static double zoomFactor;
     public static double topLeftX;
     public static double topLeftY;
 
-    Fractal(int w, int h, int i, BufferedImage buffer, int scale, Color color_correct, double cr, double ci) {
+    Fractal(int w,int h, int i, BufferedImage buffer, Color color_correct, double cr, double ci,double zoom, double topX, double topY) {
         WIDTH = w;
         HEIGHT = h;
         ITERATIONS = i;
         BUFFER = buffer;
-        SCALE = scale;
         COLOR_CORRECT = color_correct;
-        cReal = cr;
-        cImag = ci;
-
+        cReal=cr;
+        cImag=ci;
+        zoomFactor=zoom;
+        topLeftX=topX;
+        topLeftY=topY;
     }
 
-    public abstract void render();
-
-    public int getColor(float x, float y) {
+    public int getColor(double x, double y) {
         ComplexNumber constant;
         if (cReal != 0 | cImag != 0) {
             constant = new ComplexNumber(cReal, cImag);
@@ -61,4 +60,6 @@ public abstract class Fractal {
         float saturation = hsb[1];
         float brightness = hsb[2];
         return Color.HSBtoRGB(((float) i / ITERATIONS + hue) % 1, saturation, brightness);
-    }}
+    }
+    public abstract void render();
+}
