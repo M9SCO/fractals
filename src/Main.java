@@ -26,9 +26,11 @@ public class Main extends JComponent {
     JLabel label2;
     JButton colorButton;
     JButton drawButton;
+    JButton resetButton;
     ActionListener changedFractalType;
     ActionListener changedColor;
     ActionListener buttonRenderFractal;
+    ActionListener reset;
     MouseAdapter mouseListener;
     public int  fractal_selected;
 
@@ -56,6 +58,7 @@ public class Main extends JComponent {
         colorButton = new JButton("Change color");
         iterationsLabel = new JLabel("Iterations:");
         drawButton = new JButton("Draw");
+        resetButton = new JButton("Reset");
         field1 = new JTextField(10);
         field2 = new JTextField(10);
         label1 = new JLabel("cReal:");
@@ -81,6 +84,13 @@ public class Main extends JComponent {
                 JOptionPane.showMessageDialog(window, "Enter iterations, cReal, cImag","Error",JOptionPane.ERROR_MESSAGE);
             }
         };
+        reset = e->{
+            zoomFactor = DEFAULT_ZOOM;
+            topLeftX   = DEFAULT_TOP_LEFT_X;
+            topLeftY   = DEFAULT_TOP_LEFT_Y;
+            drawFractal();
+            canvas.repaint();
+        };
         changedFractalType = e -> {
             panel.removeAll();
             panel.add(chooseFractalComboBox);
@@ -94,6 +104,7 @@ public class Main extends JComponent {
                 panel.add(field2);
             }
             panel.add(drawButton);
+            panel.add(resetButton);
             window.getContentPane().add(panel, BorderLayout.SOUTH);
             window.getContentPane().validate();
         };
@@ -140,6 +151,7 @@ public class Main extends JComponent {
 
         colorButton.addActionListener(changedColor);
         drawButton.addActionListener(buttonRenderFractal);
+        resetButton.addActionListener(reset);
         chooseFractalComboBox.addActionListener(changedFractalType);
         canvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         canvas.addMouseListener(mouseListener);
@@ -148,6 +160,7 @@ public class Main extends JComponent {
         panel.add(iterationsField);
         panel.add(colorButton);
         panel.add(drawButton);
+        panel.add(resetButton);
         window.getContentPane().add(canvas);
         window.getContentPane().add(panel, BorderLayout.SOUTH);
         window.pack();
