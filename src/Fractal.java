@@ -11,7 +11,8 @@ public abstract class Fractal {
     public static double topLeftX;
     public static double topLeftY;
 
-    Fractal(int w,int h, int i, BufferedImage buffer, Color color_correct, double cr, double ci,double zoom, double topX, double topY) {
+    Fractal(int w,int h, int i, BufferedImage buffer, Color color_correct,
+            double cr, double ci,double zoom, double topX, double topY) {
         WIDTH = w;
         HEIGHT = h;
         ITERATIONS = i;
@@ -61,5 +62,6 @@ public abstract class Fractal {
         float brightness = hsb[2];
         return Color.HSBtoRGB(((float) i / ITERATIONS + hue) % 1, saturation, brightness);
     }
+
     public abstract void render();
 }

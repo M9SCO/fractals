@@ -7,45 +7,47 @@ import java.awt.image.BufferedImage;
 import java.util.Objects;
 
 public class Main extends JComponent {
-    public static final int WIDTH = 1024;
-    public static final int HEIGHT = 768;
-    public static final String[] fractals_strings = {"Mandelbrot Set", "Julia Set"};
+
+    private static final int WIDTH = 1024;
+    private static final int HEIGHT = 768;
+    private static final String[] fractals_strings = {"Mandelbrot Set", "Julia Set"};
+    private static final double DEFAULT_ZOOM       = 250.0;
+    private static final double DEFAULT_TOP_LEFT_X = -2.0;
+    private static final double DEFAULT_TOP_LEFT_Y = +1.5;
+
+    private double zoomFactor = DEFAULT_ZOOM;
+    private double topLeftX   = DEFAULT_TOP_LEFT_X;
+    private double topLeftY   = DEFAULT_TOP_LEFT_Y;
+
+    private int fractal_selected;
+    private float cr, ci;
+    private double mX, mY;
+    private int iterations;
+    private String fractal_type;
+
     private Canvas canvas;
 
     public Color color = Color.red;
     public JColorChooser chooser;
-    BufferedImage buffer;
-    JFrame window;
-    JPanel panel;
-    JComboBox chooseFractalComboBox;
-    JTextField iterationsField;
-    JTextField field1;
-    JTextField field2;
-    JLabel iterationsLabel;
-    JLabel label1;
-    JLabel label2;
-    JButton colorButton;
-    JButton drawButton;
-    JButton resetButton;
+    private final BufferedImage buffer;
+    private final JFrame window;
+    private final JPanel panel;
+    private final JComboBox<String> chooseFractalComboBox;
+    private final JTextField iterationsField;
+    private final JTextField field1;
+    private final JTextField field2;
+    private final JLabel iterationsLabel;
+    private final JLabel label1;
+    private final JLabel label2;
+    private final JButton colorButton;
+    private final JButton drawButton;
+    private final JButton resetButton;
+
     ActionListener changedFractalType;
     ActionListener changedColor;
     ActionListener buttonRenderFractal;
     ActionListener reset;
     MouseAdapter mouseListener;
-    public int  fractal_selected;
-
-    float cr, ci;
-    double mX,mY;
-    int iterations;
-    String fractal_type;
-
-    public static final double DEFAULT_ZOOM       = 250.0;
-    public static final double DEFAULT_TOP_LEFT_X = -2.0;
-    public static final double DEFAULT_TOP_LEFT_Y = +1.5;
-
-    public double zoomFactor = DEFAULT_ZOOM;
-    public double topLeftX   = DEFAULT_TOP_LEFT_X;
-    public double topLeftY   = DEFAULT_TOP_LEFT_Y;
 
     public Main() {
         window = new JFrame("Fractals");
@@ -53,7 +55,7 @@ public class Main extends JComponent {
         buffer = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         chooser = new JColorChooser();
 
-        chooseFractalComboBox = new JComboBox(fractals_strings);
+        chooseFractalComboBox = new JComboBox<>(fractals_strings);
         iterationsField = new JTextField(10);
         colorButton = new JButton("Change color");
         iterationsLabel = new JLabel("Iterations:");
@@ -81,7 +83,7 @@ public class Main extends JComponent {
             }
             catch (NumberFormatException ex){
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(window, "Enter iterations, cReal, cImag","Error",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, "Enter iterations, cReal, cImag","Error", JOptionPane.ERROR_MESSAGE);
             }
         };
         reset = e->{
@@ -108,7 +110,6 @@ public class Main extends JComponent {
             window.getContentPane().add(panel, BorderLayout.SOUTH);
             window.getContentPane().validate();
         };
-
         mouseListener = new MouseAdapter() {
             Thread x = new Thread(new loop());
             @Override
@@ -116,24 +117,21 @@ public class Main extends JComponent {
                 mX = e.getX();
                 mY = e.getY();
                 fractal_type = (String) chooseFractalComboBox.getSelectedItem();
-                switch (e.getButton()){
-                    case MouseEvent.BUTTON1: {
-                        adjustZoom(mX,mY,zoomFactor*1);
-                        if (x.isInterrupted()){
-                            x.run();
+                switch (e.getButton()) {
+                    case MouseEvent.BUTTON1 -> {
+                        adjustZoom(mX, mY, zoomFactor * 1);
+                        if (x.isInterrupted()) {
+                            x.start();
                         }
                         x.start();
                     }
-                        break;
-                    case MouseEvent.BUTTON3:
+                    case MouseEvent.BUTTON3 -> {
                         x.interrupt();
                         x = new Thread(new loop());
-                        break;
+                    }
                 }
             }
         };
-
-
         canvas = new Canvas() {
             @Override
             public void paint(Graphics g) {
@@ -145,6 +143,7 @@ public class Main extends JComponent {
                 paint(g);
             }
         };
+
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
         panel.setSize(WIDTH, 50);
@@ -171,7 +170,7 @@ public class Main extends JComponent {
     public class loop implements Runnable{
         public void run(){
             while(!Thread.interrupted()) {
-                adjustZoom( WIDTH/2,HEIGHT/2,zoomFactor*2 );
+                adjustZoom( (float)WIDTH/2,(float)HEIGHT/2,zoomFactor*2 );
             }
         }
     }
@@ -179,8 +178,8 @@ public class Main extends JComponent {
         topLeftX += newX / zoomFactor;
         topLeftY -= newY / zoomFactor;
         zoomFactor = newZoomFactor;
-        topLeftX -= ( WIDTH/2) / zoomFactor;
-        topLeftY += (HEIGHT/2) / zoomFactor;
+        topLeftX -= (float)( WIDTH/2) / zoomFactor;
+        topLeftY += (float)(HEIGHT/2) / zoomFactor;
         drawFractal();
         canvas.repaint();
     }
