@@ -1,26 +1,29 @@
 # Fractals
-
+#### Options:
+- Modify count of iterations
+- Modify color of fractal
+- Zoom relative to mouse position
 ## Fractal images generated with the application
 
 ### Mandelbrot set
-#### Options:
-- Modify count of iterations
-- Zoom animation relative to mouse position
+
 <img src="/src/images/mandelbrot1.png" width="501">
 <img src="/src/images/mandelbrot2.png" width="501">
 
 ### Julia set
 #### Options:
-- Modify count of iterations
 - Modify real part of parameter c (f(z) = z^2 + c)
 - Modify imaginary part of parameter c
-- Zoom animation relative to mouse position
 <img src="/src/images/julia1.png" width="501">
 <img src="/src/images/julia2.png" width="501">
 <img src="/src/images/julia3.png" width="501">
+### Newton fractal
+#### Options:
+- Modify polynomial coefficients
+  <img src="/src/images/newton1.png" width="501">
+  <img src="/src/images/newton2.png" width="501">
+## Zoom
 
-## Zoom animation
+Zoom in - **Left Mouse Button**
 
-Start/Resume animation - **Left Mouse Button**
-
-Stop animation - **Right Mouse Button**
+Zoom out - **Right Mouse Button**
